@@ -1,5 +1,5 @@
 # Goal of the project
-In this project, the objective was to make a review of data sets of the company named Looker Ecommerce to answer the following questions.
+In this project, the objective was to make a review of data sets of the company named Brazilian_Ecommerce to answer the following questions.
 ## Customer satisfcation
 - Average review score
 - Negative review percentage (score reviews <= 2)
