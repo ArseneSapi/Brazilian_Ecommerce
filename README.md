@@ -34,18 +34,18 @@ The project was entirely completed with SQL(MySQL)
 
 ## Data source and contents
 Data was a set of seven tables as follow :
-- customers
-- order_items
-- order_payments
-- orders reviews
-- orders
-- product_category_name_translation
-- products
-- sellers
-- geolocation
+- customers (characteritics of customers who bought from company)
+- order_items (items per order made by customers and their price)
+- order_payments (payments made by customers)
+- orders reviews (reviews left by customers)
+- orders (orders made by customers)
+- product_category_name_translation(from Spanish to English)
+- products (characteritics of products available on internet site)
+- sellers (characteritics of sellers who sold their products through internet site)
+- geolocation (customers geolocation)
 
 
-The data sets are from Kaggle. They can be downloaded through the following link:
+Data are provides by Kaggle. They can be downloaded through the following link:
 https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce?resource=download
 
 
