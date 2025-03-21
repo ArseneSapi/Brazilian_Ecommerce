@@ -1,4 +1,35 @@
 # Goal of the project
+In this project, the objective was to make a review of data sets of the compbany named Looker Ecommerce to answer the following questions.
+## Customer satisfcation
+- Average review score
+- Negative review percentage (score reviews <= 2)
+- Average response time for negative review
+## Revenue and  product category performance
+- Total revenue
+- Total revenue per state
+- Average order revenue  ($120.38)
+- Year over year revenue and growth percentage 
+- Running total revenue overtime and moving average order revenue 
+- Revenue per category and percentage 
+- Revenue lost and percentage 
+- Revenue lost splitted into product category
+## Delivery Performance
+- Average delivered time
+- Late delivery percentage
+- Average Shipping cost per order 
+- Free shipping impact
+## Payment Analysis
+- Total Payments
+- Payment per type and percentage
+- Average payments per payment type compared to global Average payments
+- Instalments rate 
+- Proportion of orders payments with multiple installments in terms of orders values 
+## Seller Performance
+- Revenue per seller(Top10)
+- Average seller Response time (time btw purchase_date and carrier_delivery_date)
+
+
+
 
 
 ## Technology used 
