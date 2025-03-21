@@ -28,16 +28,21 @@ In this project, the objective was to make a review of data sets of the company 
 - Revenue per seller(Top10)
 - Average seller Response time (time btw purchase_date and carrier_delivery_date)
 
-
-
-
-
 ## Technology used 
 ### SQL
-The project was entirely completed with SQL especially MySQL
+The project was entirely completed with SQL(MySQL)
 
 ## Data source and contents
 Data was a set of seven tables as follow :
+- customers
+- order_items
+- order_payments
+- orders reviews
+- orders
+- product_category_name_translation
+- products
+- sellers
+- geolocation
 
 
 The data sets are from Kaggle. They can be downloaded through the following link:
@@ -376,7 +381,7 @@ FROM revenue_summary
 ```
 
 ## Seller Performance
-- TOP 10 Seller revenue 
+- Revenue per seller(Top10)
 ```sql
 SELECT 
 	seller_id,
