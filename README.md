@@ -55,7 +55,7 @@ Subqueries and CTEs were used to break down problems into smaller, more manageab
 The CASE function was critical for embedding conditional logic within queries. By categorizing and grouping data based on specific conditions, I created custom columns that enhanced the flexibility and depth of my analysis.
 
 - Window Functions:
-Window functions for tasks that required comparing the values from previous years to the next year. These functions allowed me to compute metrics over specific data partitions, providing richer insights without the need for joins or subqueries.
+Window functions were used for tasks that required comparing the values between previous years and next year. These functions allowed me to compute metrics over specific data partitions, providing richer insights without the need for joins or subqueries.
 
 - JOINs:
 I combined data from multiple tables using JOINs, ensuring accurate relationships between datasets. This approach enabled a comprehensive view of the data, leading to more informed decision-making and through analysis.
