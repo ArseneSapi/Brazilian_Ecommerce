@@ -66,7 +66,8 @@ SELECT
 FROM order_reviews
 ```
 
--- 2 Negative review percentage (score reviews <= 2 : in this data min =1 and max=5) 14.68% of reviews are negative
+- Negative review percentage (score reviews <= 2 : in this data min =1 and max=5) 14.68% of reviews are negative
+```sql
 WITH review_stats AS (
     SELECT 
         CASE 
@@ -74,7 +75,7 @@ WITH review_stats AS (
             ELSE 'positive review'
         END AS review_type,
         COUNT(*) AS review_count,
-		SUM(COUNT(*)) OVER () AS total_reviews
+	SUM(COUNT(*)) OVER () AS total_reviews
     FROM order_reviews
     GROUP BY 
         CASE 
@@ -86,39 +87,36 @@ SELECT
     review_type,
     review_count AS nber_of_reviews,
     ROUND((review_count * 100.0 / total_reviews), 2) AS reviewTypePerct
-FROM review_stats;
+FROM review_stats
+```
 
--- 3- Average response time for negative review = AVG(review_answer_timestamp - review_creation_date)
+- Average response time for negative review = AVG(review_answer_timestamp - review_creation_date)
 -- 2.48 days; pretty similar with overall response time (2.58 days)
+```sql
 SELECT
-AVG(DATEDIFF(review_answer_timestamp, review_creation_date)) AS avgDays
+	AVG(DATEDIFF(review_answer_timestamp, review_creation_date)) AS avgDays
 FROM order_reviews
-where review_score <=2
+WHERE review_score <=2
+```
 
--- Product Category Performance
+## Product Category Performance
 
--- Total revenue
-SELECT ROUND(SUM(oi.price), 2) AS totalRevenue
-FROM order_items oi
-WHERE EXISTS (
-    SELECT 1
-    FROM orders o
-    WHERE o.order_id = oi.order_id
-    AND o.order_status NOT IN ('canceled', 'unavailable')
-);
-
--- OR
-
+- Total revenue
+```sql
 WITH valid_orders AS (
-    SELECT order_id
+    SELECT
+	order_id
     FROM orders
     WHERE order_status NOT IN ('canceled', 'unavailable')
 )
-SELECT ROUND(SUM(oi.price), 2) AS totalRevenue
+SELECT
+	ROUND(SUM(oi.price), 2) AS totalRevenue
 FROM order_items oi
-JOIN valid_orders vo USING (order_id);
+JOIN valid_orders vo USING (order_id)
+```
 
--- Total revenue per state
+- Total revenue per state
+```sql
 WITH state_rev AS (
     SELECT
         COALESCE(s.seller_state, 'unknown') AS seller_state,
@@ -136,33 +134,39 @@ SELECT
     ROUND(total_revenu, 2) AS overall_rev,
     ROUND((state_revenu / total_revenu) * 100, 2) AS percentage
 FROM state_rev
-ORDER BY state_revenu DESC;
+ORDER BY state_revenu DESC
+```
 
--- Average order revenue  ($120.38)
+- Average order revenue  ($120.38)
+```sql
 SELECT
-ROUND(AVG(oi.price), 2) AS totalRevenu
+	ROUND(AVG(oi.price), 2) AS totalRevenu
 FROM order_items oi
 JOIN orders o ON o.order_id=oi.order_id
 WHERE o.order_status NOT IN('canceled', 'unavailable')
+```
 
--- year over year revenue and growth percentage (more than 13000% growth between 2016 and 2017
+- Year over year revenue and growth percentage (more than 13000% growth between 2016 and 2017
+```sql
 SELECT
-*,
-ROUND(CurrentYearRev - COALESCE(PreviousYearRev, 0), 1)  AS YoY_Change,
-ROUND(((CurrentYearRev - COALESCE(PreviousYearRev, 0)) / PreviousYearRev )*100,1) AS YoY_perc
+	*,
+	ROUND(CurrentYearRev - COALESCE(PreviousYearRev, 0), 1)  AS YoY_Change,
+	ROUND(((CurrentYearRev - COALESCE(PreviousYearRev, 0)) / PreviousYearRev )*100,1) AS YoY_perc
 
 FROM (
-SELECT
-YEAR(o.order_purchase_timestamp) AS yr,
-ROUND(SUM(oi.price), 1) AS CurrentYearRev,
-ROUND(LAG(SUM(oi.price))  OVER (ORDER BY YEAR(o.order_purchase_timestamp)), 1) AS PreviousYearRev
-from order_items oi
-join orders o on o.order_id=oi.order_id
-AND o.order_status not in('canceled', 'unavailable')
-GROUP BY YEAR(o.order_purchase_timestamp) 
-)t
+	SELECT
+		YEAR(o.order_purchase_timestamp) AS yr,
+		ROUND(SUM(oi.price), 1) AS CurrentYearRev,
+		ROUND(LAG(SUM(oi.price))  OVER (ORDER BY YEAR(o.order_purchase_timestamp)), 1) AS PreviousYearRev
+	FROM order_items oi
+	JOIN orders o on o.order_id=oi.order_id
+		AND o.order_status not in('canceled', 'unavailable')
+	GROUP BY YEAR(o.order_purchase_timestamp) 
+    )t
+```
 
--- Running total revenue overtime and moving average order revenue 
+- Running total revenue overtime and moving average order revenue 
+```sql
 WITH yearly_stats AS (
     SELECT
         YEAR(o.order_purchase_timestamp) AS year_order,
@@ -180,17 +184,18 @@ SELECT
     ROUND(SUM(year_revenue) OVER (ORDER BY year_order), 0) AS running_total_revenue,
     ROUND(AVG(avg_price) OVER (ORDER BY year_order ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW), 0) AS moving_average_price
 FROM yearly_stats
-ORDER BY year_order;
+ORDER BY year_order
+```
 
--- Revenue per category and percentage (The top 10 product category drives 63% of Total revenue
+- Revenue per category and percentage (The top 10 product category drives 63% of Total revenue
+```sql
 WITH category_revenue AS (
     SELECT
         pn.product_category_name_english AS product_category_name,
         SUM(oi.price) AS category_revenue,
         SUM(SUM(oi.price)) OVER () AS total_revenue
     FROM order_items oi
-    JOIN orders o 
-        ON o.order_id = oi.order_id
+    JOIN orders o ON o.order_id = oi.order_id
         AND o.order_status NOT IN ('canceled', 'unavailable')
     JOIN products p ON p.product_id = oi.product_id
     JOIN product_category_name_translation pn 
@@ -203,16 +208,16 @@ SELECT
     ROUND((category_revenue / total_revenue) * 100, 1) AS RevCategoryPerc
 FROM category_revenue
 ORDER BY RevPerCategory DESC
-LIMIT 10;
+LIMIT 10
+```
 
--- Revenue lost and percentage (it represent 0.72% of revene projected=revenue without cancellation or unavailability)
+- Revenue lost and percentage (it represent 0.72% of revene projected=revenue without cancellation or unavailability)
+```sql
 WITH revenue_summary AS (
     SELECT
-        SUM(CASE 
-            WHEN o.order_status IN ('canceled', 'unavailable') 
-            THEN oi.price 
-            ELSE 0 
-        END) AS lost_revenue,
+        SUM(CASE
+		WHEN o.order_status IN ('canceled', 'unavailable') THEN oi.price ELSE 0 
+            END) AS lost_revenue,
         SUM(oi.price) AS total_projected_revenue
     FROM order_items oi
     LEFT JOIN orders o ON oi.order_id = o.order_id
@@ -220,21 +225,19 @@ WITH revenue_summary AS (
 SELECT
     ROUND(lost_revenue, 0) AS lostRevenue,
     ROUND(total_projected_revenue, 0) AS projectedRevenue,
-    ROUND(
-        (lost_revenue / NULLIF(total_projected_revenue, 0)) * 100,
-        2
-    ) AS LostPercentage
-FROM revenue_summary;
+    ROUND((lost_revenue / NULLIF(total_projected_revenue, 0)) * 100,2) AS LostPercentage
+FROM revenue_summary
+```
 
--- Revenue lost splitted into product category
+- Revenue lost splitted into product category
+```sql
 WITH category_revenue AS (
     SELECT
         pn.product_category_name_english AS product_category_name,
         SUM(oi.price) AS category_revenue,
         SUM(SUM(oi.price)) OVER () AS total_lost_revenue
     FROM order_items oi
-    JOIN orders o 
-        ON o.order_id = oi.order_id
+    JOIN orders o ON o.order_id = oi.order_id
         AND o.order_status IN ('canceled', 'unavailable')
     JOIN products p ON p.product_id = oi.product_id
     JOIN product_category_name_translation pn 
@@ -245,32 +248,29 @@ SELECT
     product_category_name,
     ROUND(category_revenue, 2) AS LostRevPerCategory,
     ROUND(
-        (category_revenue / NULLIF(total_lost_revenue, 0)) * 100, 
-        1
-    ) AS LostRevPercentage
+        (category_revenue / NULLIF(total_lost_revenue, 0)) * 100, 1) AS LostRevPercentage
 FROM category_revenue
 WHERE total_lost_revenue > 0  -- Prevent division by zero
 ORDER BY LostRevPerCategory DESC
-LIMIT 10;
+LIMIT 10
+``` 
 
--- Delivery Performance
--- Average delivered time
+## Delivery Performance
+- Average delivered time
 
+```sql
 SELECT
-AVG(DATEDIFF(order_delivered_customer_date, order_purchase_timestamp)) AS AvgdeliveredTime
+	AVG(DATEDIFF(order_delivered_customer_date, order_purchase_timestamp)) AS AvgdeliveredTime
 FROM orders
 WHERE order_status='delivered'
+```
 
--- Late delivery percentage (there are 7826 delivered =8.11% of total deliveries)
+- Late delivery percentage (there are 7826 delivered =8.11% of total deliveries)
+```sql
 WITH delivery_stats AS (
     SELECT
-        SUM(
-            CASE 
-                WHEN order_delivered_customer_date > order_estimated_delivery_date 
-                THEN 1 
-                ELSE 0 
-            END
-        ) AS late_deliveries,
+        SUM(CASE WHEN order_delivered_customer_date > order_estimated_delivery_date THEN 1 ELSE 0 
+            END) AS late_deliveries,
         COUNT(*) AS total_deliveries
     FROM orders
     WHERE order_status = 'delivered'
@@ -278,66 +278,58 @@ WITH delivery_stats AS (
 SELECT
     late_deliveries,
     total_deliveries,
-    ROUND(
-        (late_deliveries * 100.0 / NULLIF(total_deliveries, 0)),
-        2
-    ) AS late_delivery_percentage
-FROM delivery_stats;
+    ROUND((late_deliveries * 100.0 / NULLIF(total_deliveries, 0)),2) AS late_delivery_percentage
+FROM delivery_stats
+```
 
--- Average Shipping cost per order ($19.99 = 16.65% of average revenue)
+- Average Shipping cost per order ($19.99 = 16.65% of average revenue)
 
+```sql
 SELECT
-ROUND(AVG(i.freight_value),2) AvgFreightValue
+	ROUND(AVG(i.freight_value),2) AvgFreightValue
 FROM orders o
 JOIN order_items i ON i.order_id=o.order_id
-WHERE o.order_status NOT IN ('canceled', 'unavailable');
+WHERE o.order_status NOT IN ('canceled', 'unavailable')
+```
 
-SELECT
-ROUND(AVG(oi.price), 2) AS totalRevenu
-FROM order_items oi
-JOIN orders o ON o.order_id=oi.order_id
-WHERE o.order_status NOT IN('canceled', 'unavailable');
-
--- Free shipping impact (0.35% of orders are shipping cost free)
+- Free shipping impact (0.35% of orders are shipping cost free)
+```sql
 WITH shipping_stats AS (
     SELECT
-        COUNT(DISTINCT CASE 
-            WHEN i.freight_value = 0 THEN i.order_id 
-        END) AS free_ship_orders,
+        COUNT(DISTINCT CASE WHEN i.freight_value = 0 THEN i.order_id END) AS free_ship_orders,
         COUNT(DISTINCT i.order_id) AS total_orders
     FROM order_items i
-    JOIN orders o 
-        ON i.order_id = o.order_id
+    JOIN orders o ON i.order_id = o.order_id
         AND o.order_status NOT IN ('canceled', 'unavailable')
 )
 SELECT
     free_ship_orders,
     total_orders,
-    ROUND(
-        (free_ship_orders * 100.0 / NULLIF(total_orders, 0)),
-        2
-    ) AS free_ship_percentage
-FROM shipping_stats;
+    ROUND((free_ship_orders * 100.0 / NULLIF(total_orders, 0)),2) AS free_ship_percentage
+FROM shipping_stats
+```
 
--- Payment Analysis
--- Total Payments
+## Payment Analysis
+- Total Payments
+```sql
 SELECT 
-ROUND(SUM(payment_value), 2) totalPayments
-FROM order_payments;
+	ROUND(SUM(payment_value), 2) totalPayments
+FROM order_payments
+```
 
--- Payment per type and percentage(Credit cart is the most payment rype with 78.34% of payments)
+- Payment per type and percentage(Credit cart is the most payment rype with 78.34% of payments)
+```sql
 SELECT
     payment_type,
     ROUND(SUM(payment_value), 0) AS total_payments,
-    ROUND(
-        (SUM(payment_value) * 100.0 / NULLIF(SUM(SUM(payment_value)) OVER (), 0)),
-        2
-    ) AS total_payments_percentage
+    ROUND((SUM(payment_value) * 100.0 / NULLIF(SUM(SUM(payment_value)) OVER (), 0)),2) AS total_payments_percentage
 FROM order_payments
 GROUP BY payment_type
-ORDER BY total_payments DESC;
+ORDER BY total_payments DESC
+```
 
--- Average payments per payment type compared to global Average payments
+- Average payments per payment type compared to global Average payments
+```sql
 SELECT
     payment_type,
     ROUND(avg_payment_type, 0) AS AvgPaymentType,
@@ -350,72 +342,74 @@ FROM (
         AVG(AVG(payment_value)) OVER () AS global_avg_payment
     FROM order_payments
     GROUP BY payment_type
-) t
-ORDER BY AvgPaymentType DESC;
+     )t
+ORDER BY AvgPaymentType DESC
+```
 
--- Instalments rate (49.42% payments with instalments more than 1)
+- Instalments rate (49.42% payments with instalments more than 1)
+```sql
 SELECT
-ROUND((COUNT(payment_installments)/(SELECT COUNT(payment_installments) FROM order_payments ))*100,2) installmentRate
+	ROUND((COUNT(payment_installments)/(SELECT COUNT(payment_installments) FROM order_payments ))*100,2) installmentRate
 FROM (
-SELECT
-order_id,
-payment_installments
-FROM order_payments 
-WHERE 
-payment_installments >1
-)t;
+	SELECT
+		order_id,
+		payment_installments
+	FROM order_payments 
+	WHERE payment_installments >1
+     )t
+```
 
--- Proportion of orders payments with multiple installments in terms of orders values (62.35%)
+- Proportion of orders payments with multiple installments in terms of orders values (62.35%)
+```sql
 WITH revenue_summary AS (
     SELECT
         SUM(oi.price) AS total_revenue,
-        SUM(CASE 
-            WHEN p.payment_installments > 1 THEN oi.price 
-            ELSE 0 
-        END) AS installment_revenue
+        SUM(CASE WHEN p.payment_installments > 1 THEN oi.price ELSE 0 END) AS installment_revenue
     FROM order_items oi
-    JOIN orders o 
-        ON oi.order_id = o.order_id
+    JOIN orders o ON oi.order_id = o.order_id
         AND o.order_status NOT IN ('canceled', 'unavailable')
-    LEFT JOIN order_payments p 
-        ON oi.order_id = p.order_id
+    LEFT JOIN order_payments p ON oi.order_id = p.order_id
 )
 SELECT
-    ROUND(
-        (installment_revenue / NULLIF(total_revenue, 0)) * 100, 
-        2
-    ) AS installment_revenue_percentage
-FROM revenue_summary;
+    ROUND((installment_revenue / NULLIF(total_revenue, 0)) * 100, 2) AS installment_revenue_percentage
+FROM revenue_summary
+```
 
--- Seller Performance
--- TOP 10 Seller revenue 
+## Seller Performance
+- TOP 10 Seller revenue 
+```sql
 SELECT 
-seller_id,
-sellerrev,
-rank_nber
+	seller_id,
+	sellerrev,
+	rank_nber
 FROM (
-SELECT 
-i.seller_id,
-ROUND(SUM(i.price),2) sellerRev,
-ROW_NUMBER() OVER(ORDER BY SUM(i.price) DESC)  Rank_nber
-FROM order_items i
-JOIN orders o ON  i.order_id=o.order_id
-AND o.order_status NOT IN('canceled', 'unavailable')
-GROUP BY i.seller_id
+	SELECT 
+		i.seller_id,
+		ROUND(SUM(i.price),2) sellerRev,
+		ROW_NUMBER() OVER(ORDER BY SUM(i.price) DESC)  Rank_nber
+	FROM order_items i
+	JOIN orders o ON  i.order_id=o.order_id
+		AND o.order_status NOT IN('canceled', 'unavailable')
+	GROUP BY i.seller_id
 )t
 WHERE Rank_nber<=10
+```
 
--- Average seller Response time (time btw purchase_date and carrier_delivery_date) = 3.22 days
+- Average seller Response time (time btw purchase_date and carrier_delivery_date) = 3.22 days
+```sql
 SELECT 
-AVG(DATEDIFF(order_delivered_carrier_date, order_purchase_timestamp)) avgdays
+	AVG(DATEDIFF(order_delivered_carrier_date, order_purchase_timestamp)) avgdays
 FROM orders
-where order_status NOT IN ('canceled', 'unavailable')
+WHERE order_status NOT IN ('canceled', 'unavailable')
+```
 
--- Shipper delivery performance = 9.28 days
+- Shipper delivery performance = 9.28 days
+```sql
 SELECT 
-AVG(DATEDIFF(order_delivered_customer_date, order_delivered_carrier_date)) avgdays
+	AVG(DATEDIFF(order_delivered_customer_date, order_delivered_carrier_date)) avgdays
 FROM orders
-where order_status NOT IN ('canceled', 'unavailable')
+WHERE order_status NOT IN ('canceled', 'unavailable')
+```
 
 
 
