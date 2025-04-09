@@ -413,7 +413,7 @@ SELECT
 FROM orders
 WHERE order_status NOT IN ('canceled', 'unavailable')
 ```
-## Main facts
+## Insights
 1- Customer Satisfaction
 The company’s overall customer satisfaction score is 4.086 , which falls slightly below the e-commerce industry standard of 4.2 .
 
