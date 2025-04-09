@@ -62,7 +62,7 @@ I combined data from multiple tables using JOINs, ensuring accurate relationship
 
 
 ## Customer Satisfaction Analysis
-- Average review score (4.0868)
+- Overall customer satifaction is 4.0868 wi
 ```sql
 SELECT 
 	AVG(review_score)
@@ -73,7 +73,7 @@ FROM order_reviews
 ```sql
 WITH review_stats AS (
     SELECT 
-        CASE 
+        CASE  
             WHEN review_score <= 2 THEN 'negative review'
             ELSE 'positive review'
         END AS review_type,
@@ -413,7 +413,83 @@ SELECT
 FROM orders
 WHERE order_status NOT IN ('canceled', 'unavailable')
 ```
+## Main facts
+1- Customer Satisfaction
+The company’s overall customer satisfaction score is 4.086 , which falls slightly below the e-commerce industry standard of 4.2 .
 
+2- Revenue Growth
+
+Revenue surged by 13,500% year-over-year (YOY) between 2016 and 2017, driven by only two months of operational activity in 2016.
+A more sustainable growth rate of 20% YOY was achieved between 2017 and 2018.
+Pricing Trends
+The average selling price has declined annually: $129 → $125 → $123 . This trend is partly attributed to limited sales data from the two-month operational period in 2016.
+
+3- Product Performance
+The top 10 product categories account for 63.3% of total revenue , highlighting a significant concentration of sales in key segments.
+
+4- Delivery Performance
+
+Average delivery time : 12.49 days (includes seller response time + shipper delivery).
+8.11% of deliveries are delayed, indicating room for improvement in logistics efficiency.
+Shipping Costs
+
+Average shipping cost per order: $19.99 , representing 16.65% of average revenue per order .
+Less than 1% of orders qualify for free shipping, suggesting an opportunity to explore promotional strategies.
+
+5- Payment Methods
+
+78.35% of payments are processed via credit card, which also has the highest average transaction value compared to other payment methods.
+Payment plans represent 49.42% of all payments and are used for 63% of total orders , indicating their popularity among customers.
+
+6- Operational Metrics
+
+Seller response time (time from order placement to carrier pickup): 3.22 days .
+Shipper delivery performance (carrier transit time): 9.28 days .
+
+## Recommendations
+
+1- Improve Customer Satisfaction
+- Conduct surveys to identify pain points like delivery delays, pricing concerns.
+- Address late deliveries by optimizing logistics
+- Introduce loyalty programs to enhance satisfaction. It could be rewards for repeat customers, early access to sales
+  
+2. Sustain Revenue Growth
+- Focus on top-performing categories : Invest in marketing and inventory for the 10 categories driving 63.3% of revenue.
+- Expand product offerings in adjacent categories to reduce reliance on a few segments.
+- Leverage payment plans : Promote flexible payment options (used in 63% of orders) to attract budget-conscious customers.
+  
+3. Address Pricing Trends
+- Analyze price elasticity : Determine if price reductions are impacting margins or driving volume.
+- Introduce bundled offers (discounts for purchasing multiple items) to offset price declining.
+- Highlight value-added services (Extended warranties, free tech support) to justify pricing.
+  
+4. Optimize Delivery Performance
+- Reduce seller response time (3.22 days): one (1) day would be a good target
+- Automate order confirmations and inventory tracking.
+- Partner with faster carriers or regional fulfillment centers.
+
+5- Improve shipper delivery time (9.28 days):
+- Negotiate SLAs with carriers for faster transit.
+- Offer tiered shipping options (Expedited delivery for higher-margin products).
+
+6- Reduce late deliveries (8.11%):
+- Implement real-time tracking for customers.
+- Penalize underperforming carriers or diversify logistics partners.
+
+6. Reevaluate Shipping Costs & Promotions
+- Introduce free shipping thresholds ("Free shipping on orders over $X") to increase average order value.
+- Negotiate bulk shipping rates with carriers to lower costs as order volume grows.
+- Test limited-time free shipping promotions to gauge impact on conversion rates.
+
+8. Capitalize on Payment Preferences
+- Optimize credit card processing : Ensure seamless checkout experiences (Saved payment details, fraud protection).
+- Expand payment plan options : Partner with fintech companies to offer "buy now, pay later" solutions.
+- Monitor payment plan risks : Track default rates to avoid cash flow issues.
+
+9. Operational Efficiency
+- Automate workflows : Use tools to streamline order processing and reduce seller response time.
+- Benchmark against competitors : Compare delivery times, shipping costs, and pricing to identify gaps.
+Invest in data analytics : Track trends in real time to make proactive decisions (Dynamic pricing, inventory forecasting).
 
 
 
